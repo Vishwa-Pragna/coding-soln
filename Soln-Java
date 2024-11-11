@@ -1,0 +1,63 @@
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+
+class Palindrome {
+    String palindrome;
+    int startIndex;
+    int length;
+
+    Palindrome(String palindrome, int startIndex, int length) {
+        this.palindrome = palindrome;
+        this.startIndex = startIndex;
+        this.length = length;
+    }
+}
+
+public class Main {
+    public static Palindrome expandFromCenter(String s, int left, int right) {
+        int start = left;
+        while (left >= 0 && right < s.length() && s.charAt(left) == s.charAt(right)) {
+            left--;
+            right++;
+        }
+        start = left + 1;
+        int len = right - left - 1;
+        String palin = s.substring(start, start + len);
+        return new Palindrome(palin, start, len);
+    }
+
+    public static void findLongestPalindromes(String s) {
+        ArrayList<Palindrome> uniquePalindromes = new ArrayList<>();
+
+        for (int i = 0; i < s.length(); i++) {
+            // Odd-length palindromes
+            Palindrome oddPalin = expandFromCenter(s, i, i);
+            if (!uniquePalindromes.stream().anyMatch(p -> p.palindrome.equals(oddPalin.palindrome))) {
+                uniquePalindromes.add(oddPalin);
+            }
+            
+            // Even-length palindromes
+            Palindrome evenPalin = expandFromCenter(s, i, i + 1);
+            if (!uniquePalindromes.stream().anyMatch(p -> p.palindrome.equals(evenPalin.palindrome))) {
+                uniquePalindromes.add(evenPalin);
+            }
+        }
+
+        // Sort by length (descending) and start index (ascending)
+        uniquePalindromes.sort(Comparator.comparingInt((Palindrome p) -> -p.length)
+                                        .thenComparingInt(p -> p.startIndex));
+
+        // Print top 3 longest unique palindromes
+        System.out.println("Top 3 longest unique palindromes:");
+        for (int i = 0; i < Math.min(3, uniquePalindromes.size()); i++) {
+            Palindrome p = uniquePalindromes.get(i);
+            System.out.printf("Palindrome: %s, Start index: %d, Length: %d%n", p.palindrome, p.startIndex, p.length);
+        }
+    }
+
+    public static void main(String[] args) {
+        String input = "sqrrqabccbatudefggfedvwhijkllkjihxymnnmzpop";
+        findLongestPalindromes(input);
+    }
+}
